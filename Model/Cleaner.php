@@ -55,31 +55,33 @@ class Cleaner
                 $files = $dir->getDirectoryContents("file");
 
                 foreach ($files as $file) {
-                    $file->setDateFormat("Ymd");
-                    if ($file->getDate() < $expiringDate) {
-                        if ($cleanerConfig["debug"] == 1) {
-                            if ($cleanerConfig["archive"] == 1) {
-                                echo "ARCHIVE :" . $file->getName() . PHP_EOL;
-                            }
-                            else {
-                                echo "DELETE : " . $file->getName() . PHP_EOL;
-                            }
-                        }
-                        else {
-                            if ($cleanerConfig["archive"] == 1) {
-                                if (array_key_exists($nr, $cleanerConfig["archive_path"])) {
-                                    $archiveDir = \lw_directory::getInstance($cleanerConfig["archive_path"][$nr]);
-                                    $filename = $archiveDir->getNextFilename($file->getName());
-                                    $file->move($cleanerConfig["archive_path"][$nr], $filename);
+                    if (substr($file->getName(), 0, 1) != ".") {
+                        $file->setDateFormat("Ymd");
+                        if ($file->getDate() < $expiringDate) {
+                            if ($cleanerConfig["debug"] == 1) {
+                                if ($cleanerConfig["archive"] == 1) {
+                                    echo "ARCHIVE :" . $file->getName() . PHP_EOL;
                                 }
                                 else {
-                                    $archiveDir = \lw_directory::getInstance($cleanerConfig["default_archive_path"]);
-                                    $filename = $archiveDir->getNextFilename($file->getName());
-                                    $file->move($cleanerConfig["default_archive_path"], $filename);
+                                    echo "DELETE : " . $file->getName() . PHP_EOL;
                                 }
                             }
                             else {
-                                $file->delete();
+                                if ($cleanerConfig["archive"] == 1) {
+                                    if (array_key_exists($nr, $cleanerConfig["archive_path"])) {
+                                        $archiveDir = \lw_directory::getInstance($cleanerConfig["archive_path"][$nr]);
+                                        $filename = $archiveDir->getNextFilename($file->getName());
+                                        $file->move($cleanerConfig["archive_path"][$nr], $filename);
+                                    }
+                                    else {
+                                        $archiveDir = \lw_directory::getInstance($cleanerConfig["default_archive_path"]);
+                                        $filename = $archiveDir->getNextFilename($file->getName());
+                                        $file->move($cleanerConfig["default_archive_path"], $filename);
+                                    }
+                                }
+                                else {
+                                    $file->delete();
+                                }
                             }
                         }
                     }
