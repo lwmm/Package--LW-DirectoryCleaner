@@ -17,22 +17,36 @@ class Cleaner
         if (!array_key_exists("directorycleaner", $this->config)) {
             throw new \DirectoryCleaner\Model\ConfigEntryIsMissing;
         }
-        
+
         $cleanerConfig = $this->config["directorycleaner"];
-        
+
         if ($cleanerConfig["archive"] == 1) {
-            if(!is_dir($cleanerConfig["archive_path"])){
-                throw new \DirectoryCleaner\Model\ArchivePathIsNotExisting;
+            foreach ($cleanerConfig["archive_path"] as $archivePath) {
+                if (!is_dir($archivePath)) {
+                    throw new \DirectoryCleaner\Model\ArchivePathIsNotExisting;
+                }
+                if (!is_writable($archivePath)) {
+                    throw new \DirectoryCleaner\Model\ArchivePathIsNotWritable;
+                }
             }
-            if(!is_writable($cleanerConfig["archive_path"])){
-                throw new \DirectoryCleaner\Model\ArchivePathIsNotWritable;
+
+            if (!array_key_exists("default_archive_path", $cleanerConfig)) {
+                throw new \DirectoryCleaner\Model\NoDefaultArchivePath;
+            }
+
+            if (!is_dir($cleanerConfig["default_archive_path"])) {
+                throw new \DirectoryCleaner\Model\DefaultArchivePathNotExisting;
+            }
+            if (!is_writable($cleanerConfig["default_archive_path"])) {
+                throw new \DirectoryCleaner\Model\DefaultArchivePathNotWriteable;
             }
         }
-        
+
         $days = 30 * intval($cleanerConfig["month_of_saving"]);
+
         $expiringDate = date("Ymd", strtotime("-" . $days . " days"));
 
-        foreach ($cleanerConfig["path"] as $path) {
+        foreach ($cleanerConfig["path"] as $nr => $path) {
             if (!is_dir($path)) {
                 throw new \DirectoryCleaner\Model\AConfigPathIsNotAnDirectory;
             }
@@ -53,9 +67,16 @@ class Cleaner
                         }
                         else {
                             if ($cleanerConfig["archive"] == 1) {
-                                $archiveDir = \lw_directory::getInstance($cleanerConfig["archive_path"]);
-                                $filename = $archiveDir->getNextFilename($file->getName());
-                                $file->move($cleanerConfig["archive_path"], $filename);
+                                if (array_key_exists($nr, $cleanerConfig["archive_path"])) {
+                                    $archiveDir = \lw_directory::getInstance($cleanerConfig["archive_path"][$nr]);
+                                    $filename = $archiveDir->getNextFilename($file->getName());
+                                    $file->move($cleanerConfig["archive_path"][$nr], $filename);
+                                }
+                                else {
+                                    $archiveDir = \lw_directory::getInstance($cleanerConfig["default_archive_path"]);
+                                    $filename = $archiveDir->getNextFilename($file->getName());
+                                    $file->move($cleanerConfig["default_archive_path"], $filename);
+                                }
                             }
                             else {
                                 $file->delete();
@@ -65,8 +86,6 @@ class Cleaner
                 }
             }
         }
-
-        
     }
 
 }

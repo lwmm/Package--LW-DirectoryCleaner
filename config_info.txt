@@ -1,0 +1,7 @@
+[directorycleaner]
+debug = 1
+path[] = ""
+archive_path[] = ""
+default_archive_path = ""
+archive = 1
+month_of_saving = 1

@@ -46,7 +46,13 @@ try {
 } catch (\DirectoryCleaner\Model\ArchivePathIsNotExisting $exc) {
     die("Der Archivpfad ist kein Verzeichnis.");
 } catch (\DirectoryCleaner\Model\ArchivePathIsNotWritable $exc) {
-    die("Das Archiv-Verzeichnis ist nicht beschreibar.");
+    die("Das Archiv-Verzeichnis ist nicht beschreibbar.");
 } catch (\DirectoryCleaner\Model\ConfigEntryIsMissing $exc) {
     die("DirectoryCleaner Config-Eingtrag.");
-}
+} catch (\DirectoryCleaner\Model\NoDefaultArchivePath $exc) {
+    die("Es wurde kein Default-Archive-Verzeichnis angegeben.");
+} catch (\DirectoryCleaner\Model\DefaultArchivePathNotExisting $exc) {
+    die("Das angegebene Default-Archive-Verzeichnis ist kein Verzeichnis.");
+} catch (\DirectoryCleaner\Model\DefaultArchivePathNotWriteable $exc) {
+    die("Das Default-Archive-Verzeichnis ist nicht beschreibbar.");
+} 
