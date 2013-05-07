@@ -57,7 +57,7 @@ class Cleaner
                 foreach ($files as $file) {
                     if (substr($file->getName(), 0, 1) != ".") {
                         $file->setDateFormat("Ymd");
-                        if (date("Ymd", filectime($$file->getPath() . $file->getName())) < $expiringDate || date("Ymd", filemtime($$file->getPath() . $file->getName())) < $expiringDate) {
+                        if (date("Ymd", filectime($file->getPath() . $file->getName())) < $expiringDate || date("Ymd", filemtime($file->getPath() . $file->getName())) < $expiringDate) {
                             if ($cleanerConfig["debug"] == 1) {
                                 if ($cleanerConfig["archive"] == 1) {
                                     echo "ARCHIVE :" . $file->getName() . PHP_EOL;
